@@ -6,3 +6,10 @@ spec:
   template:
     spec:
       organization: Contactify-AG
+      topologySpreadConstraints:
+        - maxSkew: 1
+          topologyKey: kubernetes.io/hostname
+          whenUnsatisfiable: ScheduleAnyway
+          labelSelector:
+            matchLabels:
+              runner-deployment-name: contactify-ci-runner
