@@ -13,3 +13,6 @@ spec:
           labelSelector:
             matchLabels:
               runner-deployment-name: contactify-ci-runner
+    metadata:
+      annotations:
+        cluster-autoscaler.kubernetes.io/safe-to-evict: "true"
