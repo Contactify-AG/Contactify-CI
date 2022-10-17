@@ -1,0 +1,8 @@
+apiVersion: actions.summerwind.dev/v1alpha1
+kind: RunnerDeployment
+metadata:
+  name: contactify-ci-runner
+spec:
+  template:
+    spec:
+      organization: Contactify-AG

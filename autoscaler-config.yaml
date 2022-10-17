@@ -1,0 +1,17 @@
+apiVersion: actions.summerwind.dev/v1alpha1
+kind: HorizontalRunnerAutoscaler
+metadata:
+  name: contactify-ci-autoscaler
+spec:
+  scaleDownDelaySecondsAfterScaleOut: 300
+  scaleTargetRef:
+    kind: RunnerDeployment
+    name: contactify-ci-runner
+  minReplicas: 1
+  maxReplicas: 8
+  metrics:
+    - type: PercentageRunnersBusy
+      scaleUpThreshold: "0.75" # The percentage of busy runners at which the number of desired runners are re-evaluated to scale up
+      scaleDownThreshold: "0.5" # The percentage of busy runners at which the number of desired runners are re-evaluated to scale down
+      scaleUpAdjustment: 1 # The scale up runner count added to desired count
+      scaleDownAdjustment: 1 # The scale down runner count subtracted from the desired count
