@@ -1,3 +1,12 @@
+apiVersion: scheduling.k8s.io/v1
+kind: PriorityClass
+metadata:
+  name: high-priority-nonpreempting
+value: 1000000
+preemptionPolicy: Never
+globalDefault: false
+description: "This priority class will not cause other pods to be preempted."
+---
 apiVersion: actions.summerwind.dev/v1alpha1
 kind: RunnerDeployment
 metadata:
@@ -5,14 +14,18 @@ metadata:
 spec:
   template:
     spec:
+      priorityClassName: "high-priority-nonpreempting"
       organization: Contactify-AG
-      topologySpreadConstraints:
-        - maxSkew: 1
-          topologyKey: kubernetes.io/hostname
-          whenUnsatisfiable: ScheduleAnyway
-          labelSelector:
-            matchLabels:
-              runner-deployment-name: contactify-ci-runner
+      image: summerwind/actions-runner-dind
+      dockerdWithinRunnerContainer: true
+      ephemeral: true # recommended to not leak data between builds.
+      volumeStorageMedium: "Memory"
+      containers:
+        - name: runner
+          resources:
+            requests:
+              cpu: "1.0"
+              memory: "5Gi"
     metadata:
       annotations:
-        cluster-autoscaler.kubernetes.io/safe-to-evict: "true"
+        cluster-autoscaler.kubernetes.io/safe-to-evict: "false"

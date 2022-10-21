@@ -8,7 +8,7 @@ spec:
     kind: RunnerDeployment
     name: contactify-ci-runner
   minReplicas: 1
-  maxReplicas: 6
+  maxReplicas: 5
   metrics:
     - type: PercentageRunnersBusy
       scaleUpThreshold: "0.75" # The percentage of busy runners at which the number of desired runners are re-evaluated to scale up
