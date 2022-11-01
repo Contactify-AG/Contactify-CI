@@ -16,7 +16,7 @@ spec:
     spec:
       priorityClassName: "high-priority-nonpreempting"
       organization: Contactify-AG
-      image: summerwind/actions-runner-dind
+      image: summerwind/actions-runner-dind:latest
       dockerdWithinRunnerContainer: true
       ephemeral: true # recommended to not leak data between builds.
       volumeStorageMedium: "Memory"
