@@ -16,16 +16,13 @@ spec:
     spec:
       priorityClassName: "high-priority-nonpreempting"
       organization: Contactify-AG
-      image: summerwind/actions-runner-dind:latest
-      dockerdWithinRunnerContainer: true
       ephemeral: true # recommended to not leak data between builds.
       volumeStorageMedium: "Memory"
       containers:
-        - name: runner
+        - name: docker
           resources:
             requests:
-              cpu: "1.0"
-              memory: "4Gi"
+              memory: "5Gi"
     metadata:
       annotations:
         cluster-autoscaler.kubernetes.io/safe-to-evict: "false"
