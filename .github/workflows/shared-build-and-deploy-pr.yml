@@ -1,0 +1,39 @@
+name: Build and Deploy Review PR
+
+on:
+  workflow_call:
+    inputs:
+      build_command:
+        required: true
+        type: string
+      app_name:
+        required: true
+        type: string
+      app_service_basename:
+        required: true
+        type: string
+      resource_group_base:
+        required: true
+        type: string
+
+jobs:
+  build-docker:
+    name: Build Docker Image
+    uses: ./.github/workflows/shared-build-docker.yml
+    permissions:
+      contents: read
+      packages: write
+    with:
+      build_command: ${{ inputs.build_command }}
+      app_name: ${{ inputs.app_name }}
+  deploy:
+    name: Deploy to Azure Slot
+    uses: ./.github/workflows/shared-deploy-pr.yml
+    needs: [build-docker]
+    permissions:
+      id-token: write
+    secrets: inherit
+    with:
+      image_ref: ${{ needs.build-docker.outputs.image_ref }}
+      app_service: ${{ inputs.app_service_basename }}-dev
+      resource_group_base: ${{ inputs.resource_group_base }}

@@ -1,0 +1,42 @@
+# This workflow uses actions that are not certified by GitHub.
+# They are provided by a third-party and are governed by
+# separate terms of service, privacy policy, and support
+# documentation.
+
+name: Test
+
+on:
+  workflow_call:
+    inputs:
+      node_version:
+        required: true
+        type: string
+      build_command:
+        required: true
+        type: string
+      app_name:
+        required: true
+        type: string
+
+jobs:
+  build:
+    name: Build App
+    runs-on: ubuntu-latest
+
+    permissions:
+      contents: read
+
+    steps:
+      - name: Check out the repo
+        uses: actions/checkout@v3
+
+      - name: Use Node.js ${{ inputs.node_version }}
+        uses: actions/setup-node@v3
+        with:
+          node-version: ${{ inputs.node_version }}
+          cache: 'npm'
+
+      - name: Install NPM Dependencies
+        run: npm ci
+      - name: Build ${{ inputs.app_name }}
+        run: npm run ${{ inputs.build_command }}

@@ -1,0 +1,38 @@
+name: Deploy
+
+on:
+  workflow_call:
+    inputs:
+      image_ref:
+        required: true
+        type: string
+      app_service:
+        required: true
+        type: string
+      resource_group_base:
+        required: true
+        type: string
+
+jobs:
+  deploy:
+    name: Deploy
+    permissions:
+      id-token: write
+    runs-on: ubuntu-latest
+    environment:
+      name: ${{ inputs.app_service }}
+      url: ${{ steps.deploy-to-webapp.outputs.webapp-url }}
+    steps:
+      - name: Azure login
+        uses: azure/login@v1.4.6
+        with:
+          client-id: ${{ secrets.AZURE_CLIENT_ID }}
+          tenant-id: ${{ secrets.AZURE_TENANT_ID }}
+          subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+
+      - name: Deploy to Azure Web App
+        id: deploy-to-webapp
+        uses: azure/webapps-deploy@0b651ed7546ecfc75024011f76944cb9b381ef1e
+        with:
+          app-name: ${{ steps.set-app-service.outputs.app_service }}
+          images: ${{ inputs.image_ref }}

@@ -1,0 +1,91 @@
+name: Build Docker Image
+
+on:
+  workflow_call:
+    inputs:
+      build_command:
+        required: true
+        type: string
+      app_name:
+        required: true
+        type: string
+      registry:
+        required: false
+        default: ghcr.io
+        type: string
+    outputs:
+      image_ref:
+        description: "Image ref of the newly built docker image."
+        value: ${{ jobs.define-image-ref.outputs.image_ref }}
+
+jobs:
+  build-and-push:
+    name:  Build Docker Image
+    runs-on: ubuntu-latest
+
+    permissions:
+      contents: read
+      packages: write
+
+    steps:
+      - name: Check out the repo
+        uses: actions/checkout@v3
+
+      - name: Set up Docker Context for Buildx
+        run: |
+          docker context create builders
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v2
+        with:
+          endpoint: builders
+
+      - name: Log in to Docker Hub
+        uses: docker/login-action@v2
+        with:
+          registry: ${{ inputs.registry }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Define Image Name
+        run: echo "image_name=${{ inputs.registry }}/${GITHUB_REPOSITORY,,}" >> $GITHUB_OUTPUT
+        id: define-image-name
+
+      - name: Define Image Tag
+        run: echo "image_variant=${{ contains(github.ref, 'refs/tags/') && inputs.app_name || format('{0}-development', inputs.app_name) }}" >> $GITHUB_OUTPUT
+        id: define-image-variant
+
+      - name: Extract metadata (tags, labels) for Docker
+        id: meta
+        uses: docker/metadata-action@v4
+        with:
+          images: ${{ steps.define-image-name.outputs.image_name }}
+          tags: |
+            type=raw,value=latest,enable=${{ github.event_name != 'pull_request' }}
+            type=ref,event=pr,prefix=review-pr-
+            type=ref,event=tag
+          flavor: |
+            latest=false
+            suffix=-${{ steps.define-image-variant.outputs.image_variant }},onlatest=true
+
+      - name: Build and push Docker image
+        uses: docker/build-push-action@v3
+        id: build
+        with:
+          context: .
+          push: true
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
+          build-args: |
+            BUILD_COMMAND=${{ contains(github.ref, 'refs/tags/') && inputs.build_command || format('{0}-development', inputs.build_command) }}
+            APP_NAME=${{ inputs.app_name }}
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+
+      - name: Set Image Tagbase
+        id: set-tagbase
+        run: echo "image_tagbase=$(echo ${{ contains(github.ref, 'refs/tags/') && github.ref_name || github.event_name == 'pull_request' && format('review-pr-{0}', github.event.number) || 'latest' }} | tr / -)" >> $GITHUB_OUTPUT
+
+      - name: Define Image Ref
+        id: define-image-ref
+        run: echo "image_ref=${{ steps.define-image-name.outputs.image_name }}:${{ steps.def-tagbase.outputs.image_tagbase }}-${{ steps.define-image-variant.outputs.image_variant }}@${{ needs.build.outputs.digest }}" >> $GITHUB_OUTPUT

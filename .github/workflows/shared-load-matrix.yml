@@ -1,0 +1,26 @@
+name: Load Matrix from File
+
+on:
+  workflow_call:
+    inputs:
+      filename:
+        type: string
+        required: false
+        default: ./.github/matrix.json
+    outputs:
+      matrix:
+        value: ${{ jobs.load-matrix.outputs.matrix }}
+
+jobs:
+  load-matrix:
+    name: Load Matrix
+    runs-on: ubuntu-latest
+    outputs:
+      matrix: ${{ steps.load-matrix.outputs.matrix }}
+
+    steps:
+      - name: Check out the repo
+        uses: actions/checkout@v3
+
+      - id: load-matrix
+        run: echo "matrix=$(cat ${{ inputs.filename }} | jq -ca)" >> $GITHUB_OUTPUT
