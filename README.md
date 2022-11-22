@@ -36,3 +36,7 @@ This workflow calls the `shared-build-docker.yml` and `shared-deploy.yml` workfl
 ### shared-build-and-deploy-pr.yml
 
 This workflow calls the `shared-build-docker.yml` and `shared-deploy-pr.yml` workflows to deploy the specified application to an Azure AppService Slot, which it also creates based on the github event number.
+
+## Authentication
+
+To allow these workflows to update the deployments, we use "Federated Credentials". You find mor information here: https://docs.github.com/en/actions/deployment/security-hardening-your-deployments/about-security-hardening-with-openid-connect or in the wiki: https://contactify-ag.atlassian.net/wiki/spaces/DBC/pages/232423446/Deployments
