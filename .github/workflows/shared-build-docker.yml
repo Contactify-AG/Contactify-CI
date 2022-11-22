@@ -16,7 +16,7 @@ on:
     outputs:
       image_ref:
         description: "Image ref of the newly built docker image."
-        value: ${{ jobs.define-image-ref.outputs.image_ref }}
+        value: ${{ jobs.build-and-push.outputs.image_ref }}
 
 jobs:
   build-and-push:
@@ -27,7 +27,7 @@ jobs:
       contents: read
       packages: write
     outputs:
-      image_ref: ${{ steps.build.outputs.digest }}
+      image_ref: ${{ steps.define-image-ref.outputs.image_ref }}
 
     steps:
       - name: Check out the repo
