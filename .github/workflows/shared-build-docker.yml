@@ -26,6 +26,8 @@ jobs:
     permissions:
       contents: read
       packages: write
+    outputs:
+      image_ref: ${{ steps.build.outputs.digest }}
 
     steps:
       - name: Check out the repo
@@ -88,4 +90,4 @@ jobs:
 
       - name: Define Image Ref
         id: define-image-ref
-        run: echo "image_ref=${{ steps.define-image-name.outputs.image_name }}:${{ steps.def-tagbase.outputs.image_tagbase }}-${{ steps.define-image-variant.outputs.image_variant }}@${{ needs.build.outputs.digest }}" >> $GITHUB_OUTPUT
+        run: echo "image_ref=${{ steps.define-image-name.outputs.image_name }}:${{ steps.set-tagbase.outputs.image_tagbase }}-${{ steps.define-image-variant.outputs.image_variant }}@${{ steps.build.outputs.digest }}" >> $GITHUB_OUTPUT
