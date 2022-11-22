@@ -9,9 +9,6 @@ on:
       app_service:
         required: true
         type: string
-      resource_group_base:
-        required: true
-        type: string
 
 jobs:
   deploy:

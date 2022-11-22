@@ -12,9 +12,6 @@ on:
       app_service_basename:
         required: true
         type: string
-      resource_group_base:
-        required: true
-        type: string
 
 jobs:
   build-docker:
@@ -36,4 +33,3 @@ jobs:
     with:
       image_ref: ${{ needs.build-docker.outputs.image_ref }}
       app_service: ${{ inputs.app_service_basename }}-${{ contains(github.ref, 'refs/tags/') && 'prod' || 'dev' }}
-      resource_group_base: ${{ inputs.resource_group_base }}
