@@ -10,6 +10,8 @@ on:
     outputs:
       matrix:
         value: ${{ jobs.load-matrix.outputs.matrix }}
+      variant_count:
+        value: ${{ jobs.load-matrix.outputs.variant_count }}
 
 jobs:
   load-matrix:
@@ -17,6 +19,7 @@ jobs:
     runs-on: ubuntu-latest
     outputs:
       matrix: ${{ steps.load-matrix.outputs.matrix }}
+      variant_count: ${{ steps.count-variants.outputs.variant_count }}
 
     steps:
       - name: Check out the repo
@@ -24,3 +27,6 @@ jobs:
 
       - id: load-matrix
         run: echo "matrix=$(cat ${{ inputs.filename }} | jq -ca)" >> $GITHUB_OUTPUT
+
+      - id: count-variants
+        run: echo "variant_count=$(cat ${{ inputs.filename }} | jq -r '.include | length')" >> $GITHUB_OUTPUT
