@@ -10,7 +10,7 @@ This workflow can be used to run our nx based frontend tests.
 
 _Currently (2022-11-21) it only runs the build, as there is no test setup yet._
 
-### shared-load-matriy.yml
+### shared-load-matrix.yml
 
 This workflow allows to load a json file minified into a variable. This can then be used to dynamically populate the Build Matrix.
 
@@ -27,7 +27,12 @@ This workflow publishes the nx frontend to an Azure AppService Slot. It receives
 This workflow builds a docker image of the specified nx application. It outputs the image reference to be used by another job (eg. `shared-deploy.yml`).
 
 Tags that will be created:
-_TBD_
+
+Event | Tags
+--- | ---
+Push to branch (mostly `develop`, depends on upstream) | `latest-<variant>-development`
+Tags `release**` | `latest-<variant>`, `<tagname>-<variant>`
+Pull request | `review-pr-<pr-number>-variant`
 
 ### shared-build-and-deploy.yml
 
