@@ -31,5 +31,5 @@ jobs:
         id: deploy-to-webapp
         uses: azure/webapps-deploy@0b651ed7546ecfc75024011f76944cb9b381ef1e
         with:
-          app-name: ${{ steps.set-app-service.outputs.app_service }}
+          app-name: ${{ inputs.app_service }}
           images: ${{ inputs.image_ref }}
