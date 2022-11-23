@@ -1,0 +1,37 @@
+name: Clean docker registry
+
+on:
+  workflow_call:
+    inputs:
+      variant_count:
+        required: true
+        type: number
+    secrets:
+      GH_PAT:
+        required: true
+
+jobs:
+  clean-old-images:
+    name: Clean docker registry
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Prune old docker tags
+      uses: vlaurin/action-ghcr-prune@v0.4.0
+      with:
+        token: ${{ secrets.GH_PAT }}
+        organization: Contactify-AG
+        container: ${{ github.event.repository.name }}
+        dry-run: false
+        keep-last: ${{ inputs.variant_count }} # latest tags will be kept anyway, and therefore we only need to keep an additional release.
+        keep-tags-regexes: "(?:latest|review-pr).*"
+        tag-regex: ".*"
+        untagged: false
+    - name: Prune all untagged docker images
+      uses: vlaurin/action-ghcr-prune@v0.4.0
+      with:
+        token: ${{ secrets.GH_PAT }}
+        organization: Contactify-AG
+        container: ${{ github.event.repository.name }}
+        dry-run: false
+        untagged: true

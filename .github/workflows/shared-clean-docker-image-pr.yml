@@ -1,0 +1,24 @@
+name: Clean docker registry
+
+on:
+  workflow_call:
+    secrets:
+      GH_PAT:
+        required: true
+
+jobs:
+  clean-old-images:
+    name: Clean docker registry
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Delete Docker images
+        uses: vlaurin/action-ghcr-prune@v0.4.0
+        with:
+          token: ${{ secrets.GH_PAT }}
+          organization: Contactify-AG
+          container: ${{ github.event.repository.name }}
+          dry-run: false
+          keep-tags-regexes: "(?:latest|release).*"
+          tag-regex: "review-pr-${{ github.event.number }}.*"
+          untagged: true

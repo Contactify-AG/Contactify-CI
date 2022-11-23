@@ -15,6 +15,13 @@ on:
       resource_group_base:
         required: true
         type: string
+    secrets:
+      AZURE_CLIENT_ID:
+        required: true
+      AZURE_TENANT_ID:
+        required: true
+      AZURE_SUBSCRIPTION_ID:
+        required: true
 
 jobs:
   build-docker:
@@ -32,8 +39,10 @@ jobs:
     needs: [build-docker]
     permissions:
       id-token: write
-    secrets: inherit
     with:
       image_ref: ${{ needs.build-docker.outputs.image_ref }}
       app_service: ${{ inputs.app_service_basename }}-dev
       resource_group_base: ${{ inputs.resource_group_base }}
+      AZURE_CLIENT_ID: ${{ secrets.AZURE_CLIENT_ID }}
+      AZURE_TENANT_ID: ${{ secrets.AZURE_TENANT_ID }}
+      AZURE_SUBSCRIPTION_ID: ${{ secrets.AZURE_SUBSCRIPTION_ID }}

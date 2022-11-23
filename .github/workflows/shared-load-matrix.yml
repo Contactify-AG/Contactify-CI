@@ -20,6 +20,8 @@ jobs:
     outputs:
       matrix: ${{ steps.load-matrix.outputs.matrix }}
       variant_count: ${{ steps.count-variants.outputs.variant_count }}
+    permissions:
+      contents: read
 
     steps:
       - name: Check out the repo
