@@ -1,0 +1,43 @@
+name: Deploy Review
+
+on:
+  workflow_call:
+    inputs:
+      app_service_basename:
+        required: true
+        type: string
+      resource_group_base:
+        required: true
+        type: string
+    secrets:
+      GH_PAT:
+        required: true
+      AZURE_CLIENT_ID:
+        required: true
+      AZURE_TENANT_ID:
+        required: true
+      AZURE_SUBSCRIPTION_ID:
+        required: true
+
+jobs:
+  delete-review-slot:
+    name: Delete Review Deployment
+    runs-on: ubuntu-latest
+    permissions:
+      id-token: write
+    steps:
+      - name: Azure login
+        uses: azure/login@v1
+        with:
+          client-id: ${{ secrets.AZURE_CLIENT_ID }}
+          tenant-id: ${{ secrets.AZURE_TENANT_ID }}
+          subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+      - name: Delete deployment slot
+        continue-on-error: true
+        run: |
+          az webapp deployment slot delete  --name ${{ inputs.app_service_basename }}-dev --slot review-pr-${{ github.event.number }} --resource-group ${{ inputs.resource_group_base }}-dev
+      - name: Delete deployment environment
+        uses: strumwolf/delete-deployment-environment@v2.2.3
+        with:
+          token: ${{ secrets.GH_PAT }}
+          environment: ${{ inputs.app_service_basename }}-dev-review-pr-${{ github.event.number }}
