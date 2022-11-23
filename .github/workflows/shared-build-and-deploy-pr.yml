@@ -43,6 +43,7 @@ jobs:
       image_ref: ${{ needs.build-docker.outputs.image_ref }}
       app_service: ${{ inputs.app_service_basename }}-dev
       resource_group_base: ${{ inputs.resource_group_base }}
+    secrets:
       AZURE_CLIENT_ID: ${{ secrets.AZURE_CLIENT_ID }}
       AZURE_TENANT_ID: ${{ secrets.AZURE_TENANT_ID }}
       AZURE_SUBSCRIPTION_ID: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
