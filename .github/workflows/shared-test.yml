@@ -23,20 +23,29 @@ jobs:
     name: Build App
     runs-on: ubuntu-latest
 
+    container: 
+      image: node:${{ inputs.node_version }}
+      options: --user 1001:121
     permissions:
       contents: read
 
     steps:
       - name: Check out the repo
         uses: actions/checkout@v3
-
-      - name: Use Node.js ${{ inputs.node_version }}
+      - name: Cache npm deps
         uses: actions/setup-node@v3
         with:
-          node-version: ${{ inputs.node_version }}
           cache: 'npm'
-
-      - name: Install NPM Dependencies
+      - name: Cache node modules
+        id: cache-node
+        uses: actions/cache@v3
+        with:
+          path: node_modules
+          key: ${{ runner.os }}-node-${{ hashFiles('**/package-lock.json') }}
+          restore-keys: |
+            ${{ runner.os }}-node-
+      - name: Install dependencies
+        if: steps.cache-node.outputs.cache-hit != 'true'
         run: npm ci
       - name: Build ${{ inputs.app_name }}
         run: npm run ${{ inputs.build_command }}
