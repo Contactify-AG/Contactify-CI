@@ -27,7 +27,7 @@ jobs:
       id-token: write
     steps:
       - name: Sleep random
-        run: sleep $[ ( $RANDOM % 10 ) ]s
+        run: sleep $[ ( $RANDOM % 30 ) ]s
       - name: Azure login
         uses: azure/login@v1
         with:
@@ -35,9 +35,8 @@ jobs:
           tenant-id: ${{ secrets.AZURE_TENANT_ID }}
           subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
       - name: Delete deployment slot
-        continue-on-error: true
         run: |
-          az webapp deployment slot delete  --name ${{ inputs.app_service_basename }}-dev --slot review-pr-${{ github.event.number }} --resource-group ${{ inputs.resource_group_base }}-dev
+          az webapp deployment slot delete --name ${{ inputs.app_service_basename }}-dev --slot review-pr-${{ github.event.number }} --resource-group ${{ inputs.resource_group_base }}-dev
       - name: Delete deployment environment
         uses: strumwolf/delete-deployment-environment@v2.2.3
         with:
