@@ -26,6 +26,8 @@ jobs:
     permissions:
       id-token: write
     steps:
+      - name: Sleep random
+        run: sleep $[ ( $RANDOM % 10 ) ]s
       - name: Azure login
         uses: azure/login@v1
         with:
