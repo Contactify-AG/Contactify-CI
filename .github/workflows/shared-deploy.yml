@@ -48,7 +48,7 @@ jobs:
       - name: Create slot
         id: create-slot
         run: |
-          $hostname=$(az webapp deployment slot create --name ${{ inputs.app_service_name }} --resource-group ${{ inputs.resource_group }} --slot ${{ inputs.slot_name }} --configuration-source ${{ inputs.app_service_name }} --query "defaultHostName" --output tsv) && echo "slot-base-url=https://$hostname" >> $GITHUB_OUTPUT
+          hostname=$(az webapp deployment slot create --name ${{ inputs.app_service_name }} --resource-group ${{ inputs.resource_group }} --slot ${{ inputs.slot_name }} --configuration-source ${{ inputs.app_service_name }} --query "defaultHostName" --output tsv) && echo "slot-base-url=https://$hostname" >> $GITHUB_OUTPUT
 
       - name: Stop slot
         run: |
