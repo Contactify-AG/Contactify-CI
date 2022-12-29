@@ -9,9 +9,16 @@ on:
       app_name:
         required: true
         type: string
-      app_service_basename:
+      app_service_name:
         required: true
         type: string
+      resource_group:
+        required: true
+        type: string
+      healthcheck_path:
+        required: false
+        type: string
+        default: /
     secrets:
       AZURE_CLIENT_ID:
         required: true
@@ -38,7 +45,9 @@ jobs:
       id-token: write
     with:
       image_ref: ${{ needs.build-docker.outputs.image_ref }}
-      app_service: ${{ inputs.app_service_basename }}-${{ contains(github.ref, 'refs/tags/') && 'prod' || 'dev' }}
+      app_service_name: ${{ inputs.app_service_name }}
+      resource_group: ${{ inputs.resource_group }}
+      healthcheck_path: ${{ inputs.healthcheck_path }}
     secrets:
       AZURE_CLIENT_ID: ${{ secrets.AZURE_CLIENT_ID }}
       AZURE_TENANT_ID: ${{ secrets.AZURE_TENANT_ID }}

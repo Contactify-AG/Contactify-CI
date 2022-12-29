@@ -6,10 +6,10 @@ on:
       image_ref:
         required: true
         type: string
-      app_service:
+      app_service_name:
         required: true
         type: string
-      resource_group_base:
+      resource_group:
         required: true
         type: string
     secrets:
@@ -27,7 +27,7 @@ jobs:
       id-token: write
     runs-on: ubuntu-latest
     environment:
-      name: '${{ inputs.app_service }}-review-pr-${{ github.event.number }}'
+      name: '${{ inputs.app_service_name }}-review-pr-${{ github.event.number }}'
       url: ${{ steps.deploy-to-webapp.outputs.webapp-url }}
     steps:
       - name: Azure login
@@ -39,12 +39,12 @@ jobs:
 
       - name: Create deployment slot
         run: |
-          az webapp deployment slot create --name ${{ inputs.app_service }} --resource-group ${{ inputs.resource_group_base }}-dev --slot review-pr-${{ github.event.number }} --configuration-source ${{ inputs.app_service }}
+          az webapp deployment slot create --name ${{ inputs.app_service_name }} --resource-group ${{ inputs.resource_group }} --slot review-pr-${{ github.event.number }} --configuration-source ${{ inputs.app_service_name }}
 
       - name: Deploy to Azure Web App Slot
         id: deploy-to-webapp
         uses: azure/webapps-deploy@0b651ed7546ecfc75024011f76944cb9b381ef1e
         with:
-          app-name: ${{ inputs.app_service }}
+          app-name: ${{ inputs.app_service_name }}
           images: ${{ inputs.image_ref }}
           slot-name: review-pr-${{ github.event.number }}

@@ -3,10 +3,10 @@ name: Deploy Review
 on:
   workflow_call:
     inputs:
-      app_service_basename:
+      app_service_name:
         required: true
         type: string
-      resource_group_base:
+      resource_group:
         required: true
         type: string
     secrets:
@@ -36,9 +36,9 @@ jobs:
           subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
       - name: Delete deployment slot
         run: |
-          az webapp deployment slot delete --name ${{ inputs.app_service_basename }}-dev --slot review-pr-${{ github.event.number }} --resource-group ${{ inputs.resource_group_base }}-dev
+          az webapp deployment slot delete --name ${{ inputs.app_service_name }} --slot review-pr-${{ github.event.number }} --resource-group ${{ inputs.resource_group }}
       - name: Delete deployment environment
         uses: strumwolf/delete-deployment-environment@v2.2.3
         with:
           token: ${{ secrets.GH_PAT }}
-          environment: ${{ inputs.app_service_basename }}-dev-review-pr-${{ github.event.number }}
+          environment: ${{ inputs.app_service_name }}-review-pr-${{ github.event.number }}

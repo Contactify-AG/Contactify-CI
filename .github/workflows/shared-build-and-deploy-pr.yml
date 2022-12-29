@@ -9,10 +9,10 @@ on:
       app_name:
         required: true
         type: string
-      app_service_basename:
+      app_service_name:
         required: true
         type: string
-      resource_group_base:
+      resource_group:
         required: true
         type: string
     secrets:
@@ -41,8 +41,8 @@ jobs:
       id-token: write
     with:
       image_ref: ${{ needs.build-docker.outputs.image_ref }}
-      app_service: ${{ inputs.app_service_basename }}-dev
-      resource_group_base: ${{ inputs.resource_group_base }}
+      app_service_name: ${{ inputs.app_service_name }}
+      resource_group: ${{ inputs.resource_group }}
     secrets:
       AZURE_CLIENT_ID: ${{ secrets.AZURE_CLIENT_ID }}
       AZURE_TENANT_ID: ${{ secrets.AZURE_TENANT_ID }}

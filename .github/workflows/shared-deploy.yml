@@ -6,9 +6,20 @@ on:
       image_ref:
         required: true
         type: string
-      app_service:
+      app_service_name:
         required: true
         type: string
+      resource_group:
+        required: true
+        type: string
+      slot_name:
+        required: false
+        type: string
+        default: standby
+      healthcheck_path:
+        required: false
+        type: string
+        default: /
     secrets:
       AZURE_CLIENT_ID:
         required: true
@@ -24,7 +35,7 @@ jobs:
       id-token: write
     runs-on: ubuntu-latest
     environment:
-      name: ${{ inputs.app_service }}
+      name: ${{ inputs.app_service_name }}
       url: ${{ steps.deploy-to-webapp.outputs.webapp-url }}
     steps:
       - name: Azure login
@@ -34,9 +45,40 @@ jobs:
           tenant-id: ${{ secrets.AZURE_TENANT_ID }}
           subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
 
+      - name: Ensure npx uses a cache
+        uses: actions/setup-node@v3
+        with:
+          cache: 'npm'
+          cache-dependency-path: '**/.github/workflows/*.yml'
+
+      - name: Create slot
+        id: create-slot
+        run: |
+          $hostname=$(az webapp deployment slot create --name ${{ inputs.app_service_name }} --resource-group ${{ inputs.resource_group }} --slot ${{ inputs.slot_name }} --configuration-source ${{ inputs.app_service_name }} --query "defaultHostName" --output tsv) && echo "slot-base-url=https://$hostname" >> $GITHUB_OUTPUT
+
+      - name: Stop slot
+        run: |
+          az webapp stop --name ${{ inputs.app_service_name }} --resource-group ${{ inputs.resource_group }} --slot ${{ inputs.slot_name }}
+
+      - name: Wait for offline
+        run: |
+          npx wait-on -r ${{ steps.create-slot.outputs.slot-base-url }}${{ inputs.healthcheck_path }}
+
       - name: Deploy to Azure Web App
         id: deploy-to-webapp
         uses: azure/webapps-deploy@0b651ed7546ecfc75024011f76944cb9b381ef1e
         with:
-          app-name: ${{ inputs.app_service }}
+          app-name: ${{ inputs.app_service_name }}
           images: ${{ inputs.image_ref }}
+
+      - name: Start slot
+        run: |
+          az webapp start --name ${{ inputs.app_service_name }} --resource-group ${{ inputs.resource_group }} --slot ${{ inputs.slot_name }}
+
+      - name: Wait for slot ready
+        run: |
+          npx wait-on ${{ steps.deploy-to-webapp.outputs.webapp-url }}${{ inputs.healthcheck_path }}
+
+      - name: Swap Slots
+        run: |
+          az webapp deployment slot swap --name ${{ inputs.app_service_name }} --resource-group ${{ inputs.resource_group }} --slot ${{ inputs.slot_name }}
