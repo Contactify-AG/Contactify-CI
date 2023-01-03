@@ -27,6 +27,10 @@ on:
       AZURE_SUBSCRIPTION_ID:
         required: true
 
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref_type }}
+  cancel-in-progress: true
+
 jobs:
   build-docker:
     name: Build Docker Image
