@@ -2,6 +2,7 @@ name: Build Docker Image
 
 on:
   workflow_call:
+    input:
       app_name:
         required: true
         type: string
