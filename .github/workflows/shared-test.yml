@@ -11,9 +11,6 @@ on:
       node_version:
         required: true
         type: string
-      build_command:
-        required: true
-        type: string
       app_name:
         required: true
         type: string
@@ -48,4 +45,4 @@ jobs:
         if: steps.cache-node.outputs.cache-hit != 'true'
         run: npm ci
       - name: Build ${{ inputs.app_name }}
-        run: npm run ${{ inputs.build_command }}
+        run: npm run build ${{ inputs.app_name }}
