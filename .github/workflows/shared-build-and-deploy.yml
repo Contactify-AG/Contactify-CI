@@ -3,9 +3,6 @@ name: Build and Deploy
 on:
   workflow_call:
     inputs:
-      build_command:
-        required: true
-        type: string
       app_name:
         required: true
         type: string
@@ -35,7 +32,6 @@ jobs:
       contents: read
       packages: write
     with:
-      build_command: ${{ inputs.build_command }}
       app_name: ${{ inputs.app_name }}
   deploy: 
     name: Deploy to Azure

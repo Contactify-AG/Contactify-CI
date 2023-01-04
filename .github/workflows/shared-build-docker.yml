@@ -2,10 +2,6 @@ name: Build Docker Image
 
 on:
   workflow_call:
-    inputs:
-      build_command:
-        required: true
-        type: string
       app_name:
         required: true
         type: string
@@ -79,7 +75,7 @@ jobs:
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
           build-args: |
-            BUILD_COMMAND=${{ contains(github.ref, 'refs/tags/') && inputs.build_command || format('{0}-development', inputs.build_command) }}
+            BUILD_COMMAND=${{ contains(github.ref, 'refs/tags/') && format('build {0}', inputs.app_name) || format('build-staging {0}', inputs.app_name) }}
             APP_NAME=${{ inputs.app_name }}
           cache-from: type=gha
           cache-to: type=gha,mode=max
